@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Art-Book-Next",
+    "repo": "anthonycaccese/art-book-next-es",
+    "author": "anthonycaccese"
+  },
+  {
+    "name": "Neutral",
+    "repo": "REG-Linux/es-theme-neutral",
+    "author": "Mattersons"
+  },
+  {
+    "name": "Hexa-handheld",
+    "repo": "lehcimcramtrebor/es-theme-Hexa-handheld",
+    "author": "lehcimcramtrebor"
+  },
+  {
+    "name": "RetroFix",
+    "repo": "20GotoTen/es-theme-retrofix",
+    "author": "20GotoTen"
+  },
+  {
+    "name": "RetroFix-Mini",
+    "repo": "20GotoTen/es-theme-retrofix-mini",
+    "author": "20GotoTen"
+  }
+]

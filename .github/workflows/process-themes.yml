@@ -1,0 +1,84 @@
+name: Process themes
+
+on:
+  schedule:
+    - cron: '0 4 1 * *'   # 1st of each month at 4:00 UTC
+  workflow_dispatch:        # manual trigger
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick zip jq
+
+      - name: Build EtcTool
+        run: |
+          git clone --depth 1 https://github.com/nicol3a/etc2comp.git /tmp/etc2comp
+          cd /tmp/etc2comp && mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make -j$(nproc) EtcTool
+          sudo cp EtcTool/EtcTool /usr/local/bin/
+
+      - name: Process all themes
+        run: |
+          mkdir -p /tmp/zips /tmp/screenshots
+          chmod +x scripts/process-theme.sh
+
+          jq -c '.[]' scripts/theme-list.json | while read -r entry; do
+            name=$(echo "$entry" | jq -r '.name')
+            repo=$(echo "$entry" | jq -r '.repo')
+            bash scripts/process-theme.sh "$name" "$repo" /tmp/zips /tmp/screenshots EtcTool || \
+              echo "WARNING: failed to process $name"
+          done
+
+      - name: Generate themes.json
+        run: |
+          chmod +x scripts/generate-index.sh
+          RELEASE_TAG="v$(date +%Y.%m)"
+          bash scripts/generate-index.sh \
+            scripts/theme-list.json \
+            /tmp/zips \
+            /tmp/screenshots \
+            "$RELEASE_TAG" \
+            themes.json \
+            REG-Linux/theme-index
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+
+      - name: Copy screenshots into repo
+        run: |
+          rm -rf screenshots/
+          cp -r /tmp/screenshots screenshots/
+
+      - name: Commit themes.json and screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add themes.json screenshots/
+          if git diff --cached --quiet; then
+            echo "No metadata changes"
+          else
+            git commit -m "Update theme index $(date +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Create release with theme zips
+        run: |
+          RELEASE_TAG="v$(date +%Y.%m)"
+          # Delete existing release if any (re-run same month)
+          gh release delete "$RELEASE_TAG" --yes 2>/dev/null || true
+          gh release create "$RELEASE_TAG" \
+            --title "Theme packages $RELEASE_TAG" \
+            --notes "Processed theme packages for REG-Station. Auto-generated." \
+            /tmp/zips/*.zip
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
