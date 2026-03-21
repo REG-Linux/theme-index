@@ -22,7 +22,7 @@ jobs:
 
       - name: Build EtcTool
         run: |
-          git clone --depth 1 https://github.com/nicol3a/etc2comp.git /tmp/etc2comp
+          git clone --depth 1 https://github.com/google/etc2comp.git /tmp/etc2comp
           cd /tmp/etc2comp && mkdir build && cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
           make -j$(nproc) EtcTool
