@@ -38,17 +38,13 @@ if [ ! -d "$WORK_DIR/$NAME" ]; then
     exit 1
 fi
 
-# 2. Validate
-if [ ! -f "$WORK_DIR/$NAME/theme.xml" ]; then
-    echo "  WARNING: no theme.xml at root, checking subdirs..."
-    # Some themes nest the theme.xml one level deep
-    found=$(find "$WORK_DIR/$NAME" -maxdepth 2 -name "theme.xml" | head -1)
-    if [ -z "$found" ]; then
-        echo "  ERROR: no theme.xml found"
-        exit 1
-    fi
-    echo "  Found: $found"
+# 2. Validate — theme.xml may be at root or in per-system subdirectories
+found=$(find "$WORK_DIR/$NAME" -maxdepth 2 -name "theme.xml" | head -1)
+if [ -z "$found" ]; then
+    echo "  ERROR: no theme.xml found anywhere"
+    exit 1
 fi
+echo "  Validated: theme.xml found"
 
 # 3. Strip .git and video files
 rm -rf "$WORK_DIR/$NAME/.git" "$WORK_DIR/$NAME/.github"
@@ -74,20 +70,15 @@ else
     echo "  WARNING: ImageMagick not found, skipping downscale"
 fi
 
-# 5. ETC1 compress opaque textures
+# 5. ETC1 compress opaque textures (JPEGs only — always opaque, no alpha check needed)
 if [ -n "$ETCTOOL" ] && command -v "$ETCTOOL" >/dev/null 2>&1; then
-    echo "  ETC1 compressing..."
-    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-    if [ -f "$SCRIPT_DIR/../../compress-theme-etc1.sh" ]; then
-        bash "$SCRIPT_DIR/../../compress-theme-etc1.sh" "$WORK_DIR/$NAME" "$ETCTOOL" 80
-    else
-        # Inline fallback: compress JPEGs only (always opaque)
-        find "$WORK_DIR/$NAME" -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
-            stem="${img%.*}"
-            "$ETCTOOL" "$img" -format ETC1 -effort 80 -output "${stem}.pkm" 2>/dev/null && \
-                echo "  PKM: $(basename "${stem}.pkm")"
-        done
-    fi
+    echo "  ETC1 compressing JPEGs..."
+    compressed=0
+    find "$WORK_DIR/$NAME" -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
+        stem="${img%.*}"
+        "$ETCTOOL" "$img" -format ETC1 -effort 80 -output "${stem}.pkm" 2>/dev/null || true
+    done
+    echo "  ETC1 done"
 else
     echo "  Skipping ETC1 (no EtcTool)"
 fi
