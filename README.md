@@ -21,3 +21,4 @@ Theme zip downloads are on GitHub Releases (no size limit, CDN-backed).
 ## Adding a theme
 
 Edit `scripts/theme-list.json`, add an entry, trigger the workflow.
+
