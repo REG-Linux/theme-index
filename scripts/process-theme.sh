@@ -83,10 +83,11 @@ else
     echo "  Skipping ETC1 (no EtcTool)"
 fi
 
-# 6. Extract screenshot
+# 6. Extract screenshot — try multiple sources
 mkdir -p "$SCREENSHOTS_DIR"
 screenshot=""
-# Look for common screenshot locations
+
+# A) Check theme repo for common screenshot locations
 for candidate in \
     "$WORK_DIR/$NAME/_inc/screenshot.jpg" \
     "$WORK_DIR/$NAME/_inc/screenshot.png" \
@@ -100,12 +101,26 @@ for candidate in \
     fi
 done
 
-if [ -n "$screenshot" ]; then
+# B) Try GitHub repo social preview image
+if [ -z "$screenshot" ]; then
+    og_url=$(curl -sL "https://github.com/$REPO" | grep -o 'og:image.*content="[^"]*"' | grep -o 'https://repository-images[^"]*' | head -1)
+    if [ -n "$og_url" ]; then
+        curl -sfL "$og_url" -o "$SCREENSHOTS_DIR/${NAME}.jpg" 2>/dev/null && \
+            echo "  Screenshot from GitHub social preview" && screenshot="done"
+    fi
+fi
+
+if [ -n "$screenshot" ] && [ "$screenshot" != "done" ]; then
     ext="${screenshot##*.}"
     cp "$screenshot" "$SCREENSHOTS_DIR/${NAME}.${ext}"
     echo "  Screenshot: ${NAME}.${ext}"
-else
-    echo "  WARNING: no screenshot found"
+elif [ -z "$screenshot" ]; then
+    # C) Keep existing screenshot if already in repo
+    if [ -f "screenshots/${NAME}.jpg" ]; then
+        echo "  Screenshot: keeping existing"
+    else
+        echo "  WARNING: no screenshot found"
+    fi
 fi
 
 # 7. Package as .zip
