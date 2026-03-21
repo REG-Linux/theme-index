@@ -16,4 +16,31 @@
     "screenshot": "",
     "last_update": "2024-07-15"
   }
+,
+  {
+    "theme": "Hexa-handheld",
+    "author": "lehcimcramtrebor",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.03/Hexa-handheld.zip",
+    "size": 86,
+    "screenshot": "",
+    "last_update": "2025-02-28"
+  }
+,
+  {
+    "theme": "RetroFix",
+    "author": "20GotoTen",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.03/RetroFix.zip",
+    "size": 82,
+    "screenshot": "",
+    "last_update": "2025-10-13"
+  }
+,
+  {
+    "theme": "RetroFix-Mini",
+    "author": "20GotoTen",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.03/RetroFix-Mini.zip",
+    "size": 78,
+    "screenshot": "",
+    "last_update": "2025-12-31"
+  }
 ]}
