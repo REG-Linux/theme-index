@@ -2,12 +2,13 @@
 #
 # Process a single theme for REG-Station:
 #   1. Clone (shallow)
-#   2. Validate (theme.xml exists)
+#   2. Validate (theme.xml or theme.json exists)
 #   3. Strip videos and .git
 #   4. Downscale oversized images
 #   5. ETC1 compress opaque textures
 #   6. Extract screenshot
-#   7. Package as .zip
+#   7. Convert XML to JSON (REG-ES native format)
+#   8. Package as .zip
 #
 # Usage: process-theme.sh <name> <github_repo> <output_dir> <screenshots_dir> [etctool_path]
 #
@@ -38,13 +39,13 @@ if [ ! -d "$WORK_DIR/$NAME" ]; then
     exit 1
 fi
 
-# 2. Validate — theme.xml may be at root or in per-system subdirectories
-found=$(find "$WORK_DIR/$NAME" -maxdepth 2 -name "theme.xml" | head -1)
+# 2. Validate — theme.xml or theme.json may be at root or in per-system subdirectories
+found=$(find "$WORK_DIR/$NAME" -maxdepth 2 \( -name "theme.xml" -o -name "theme.json" \) | head -1)
 if [ -z "$found" ]; then
-    echo "  ERROR: no theme.xml found anywhere"
+    echo "  ERROR: no theme.xml or theme.json found anywhere"
     exit 1
 fi
-echo "  Validated: theme.xml found"
+echo "  Validated: theme file found ($(basename "$found"))"
 
 # 3. Strip .git and video files
 rm -rf "$WORK_DIR/$NAME/.git" "$WORK_DIR/$NAME/.github"
@@ -123,7 +124,31 @@ elif [ -z "$screenshot" ]; then
     fi
 fi
 
-# 7. Package as .zip
+# 7. Convert XML theme files to JSON
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONVERTER="$SCRIPT_DIR/convert_theme_xml_to_json.py"
+SCHEMA="$SCRIPT_DIR/theme_schema.json"
+
+xml_count=$(find "$WORK_DIR/$NAME" -type f -iname "*.xml" | wc -l)
+if [ "$xml_count" -gt 0 ] && [ -f "$CONVERTER" ] && [ -f "$SCHEMA" ]; then
+    echo "  Converting $xml_count XML files to JSON..."
+    python3 "$CONVERTER" "$WORK_DIR/$NAME" --schema "$SCHEMA" || {
+        echo "  ERROR: XML to JSON conversion failed"
+        exit 1
+    }
+    # Remove original XML files — REG-ES only loads JSON
+    find "$WORK_DIR/$NAME" -type f -iname "*.xml" -delete
+    json_count=$(find "$WORK_DIR/$NAME" -type f -iname "*.json" | wc -l)
+    echo "  Converted: $json_count JSON files, XML originals removed"
+else
+    if [ "$xml_count" -eq 0 ]; then
+        echo "  No XML files to convert (theme already JSON)"
+    else
+        echo "  WARNING: converter or schema not found, skipping XML→JSON conversion"
+    fi
+fi
+
+# 8. Package as .zip
 mkdir -p "$OUTPUT_DIR"
 (cd "$WORK_DIR" && zip -qr "$OUTPUT_DIR/${NAME}.zip" "$NAME/")
 size_mb=$(du -sm "$OUTPUT_DIR/${NAME}.zip" | cut -f1)
