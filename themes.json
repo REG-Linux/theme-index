@@ -2,16 +2,16 @@
   {
     "theme": "Art-Book-Next",
     "author": "anthonycaccese",
-    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.07/Art-Book-Next.zip",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.08/Art-Book-Next.zip",
     "size": 280,
-    "screenshot": "screenshots/Art-Book-Next.jpg",
+    "screenshot": "",
     "last_update": "2026-03-12"
   }
 ,
   {
     "theme": "Neutral",
     "author": "Mattersons",
-    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.07/Neutral.zip",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.08/Neutral.zip",
     "size": 34,
     "screenshot": "",
     "last_update": "2024-07-15"
@@ -20,7 +20,7 @@
   {
     "theme": "Hexa-handheld",
     "author": "lehcimcramtrebor",
-    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.07/Hexa-handheld.zip",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.08/Hexa-handheld.zip",
     "size": 86,
     "screenshot": "",
     "last_update": "2025-02-28"
@@ -29,16 +29,16 @@
   {
     "theme": "RetroFix",
     "author": "20GotoTen",
-    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.07/RetroFix.zip",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.08/RetroFix.zip",
     "size": 82,
-    "screenshot": "screenshots/RetroFix.jpg",
+    "screenshot": "",
     "last_update": "2025-10-13"
   }
 ,
   {
     "theme": "RetroFix-Mini",
     "author": "20GotoTen",
-    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.07/RetroFix-Mini.zip",
+    "download_url": "https://github.com/REG-Linux/theme-index/releases/download/v2026.08/RetroFix-Mini.zip",
     "size": 78,
     "screenshot": "",
     "last_update": "2025-12-31"
